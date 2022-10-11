@@ -23,7 +23,7 @@ services:
       - "8888:8888"
     volumes:
       - ./:/opt/odoo
-      - odoo_data:/root/.local/share/Odoo
+      - odoo_data:/home/odoo/.local/share/Odoo
     command: bash -c "$${PYTHON_PATH} $${DEBUG_ODOO} $${START_ODOO} $${ODOO_PARAM} && tail -f /dev/null"
     environment:
       PYTHON_PATH: "/usr/bin/python3"
