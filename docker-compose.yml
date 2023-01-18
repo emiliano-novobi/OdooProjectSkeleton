@@ -1,76 +1,29 @@
-version: "3.9"
-
 services:
   odoo:
-    # image: novobidevops/odoo:16
     build: ./box
+    depends_on:
+      - db
     ports:
       - "8069:8069"
     volumes:
-      - ./:/opt/odoo
-      - odoo_data:/home/odoo/.local/share/Odoo
+      - .:/opt/odoo
+      - odoo_data:/root/.local/share/Odoo
     command: bash -c "$${PYTHON_PATH} $${START_ODOO} $${ODOO_PARAM} && tail -f /dev/null"
     environment:
-      PYTHON_PATH: "/usr/bin/python3"
+      PYTHON_PATH: "/usr/local/bin/python3"
       START_ODOO: "/opt/odoo/odoo/odoo-bin -c /opt/odoo/odoo.conf"
       ODOO_PARAM: ""
-    depends_on:
-      - odoo-postgres
-    tty: true
-  odoo-postgres:
-    image: postgres:13
+  db:
+    image: postgres
     ports:
       - "5432:5432"
     volumes:
-      - odoo_postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: odoo
-      POSTGRES_PASSWORD: odoo
-    tty: true
-  oms:
-    build: ./box
-    ports:
-      - "8070:8069"
-    volumes:
-      - ./:/opt/odoo
-      - oms_data:/home/odoo/.local/share/Odoo
-    command: bash -c "$${PYTHON_PATH} $${START_ODOO} $${ODOO_PARAM} && tail -f /dev/null"
-    environment:
-      PYTHON_PATH: "/usr/bin/python3"
-      START_ODOO: "/opt/odoo/odoo/odoo-bin -c /opt/odoo/oms.conf"
-      ODOO_PARAM: ""
-    depends_on:
-      - oms-postgres
-    tty: true
-  oms-postgres:
-    image: postgres:13
-    ports:
-      - "5433:5432"
-    volumes:
-      - oms_postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: odoo
-      POSTGRES_PASSWORD: odoo
-    tty: true
-  localstack:
-    image: localstack/localstack
-    ports:
-      - "127.0.0.1:4566:4566"            # LocalStack Gateway
-      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
-    environment:
-      - DEBUG=${DEBUG-}
-      - PERSISTENCE=${PERSISTENCE-}
-      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3
-    volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
 
 volumes:
   odoo_data:
-  odoo_postgres_data:
-  oms_data:
-  oms_postgres_data:
+  postgres_data:
