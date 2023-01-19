@@ -3,6 +3,7 @@ services:
     build: ./box
     depends_on:
       - db
+#      - smtp
     ports:
       - "8069:8069"
     volumes:
@@ -23,6 +24,15 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=odoo
       - POSTGRES_USER=odoo
+  smtp:
+    image: gessnerfl/fake-smtp-server
+    ports:
+      - "5080:5080"
+      - "5081:5081"
+      - "5025:5025"
+    environment:
+      - fakesmtp_authentication_username=admin
+      - fakesmtp_authentication_password=admin
 
 volumes:
   odoo_data:
